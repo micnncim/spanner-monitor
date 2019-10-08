@@ -63,7 +63,7 @@ func (c *Client) ReadMetrics(ctx context.Context) error {
 		}
 
 		log.Printf("%#v\n", resp.GetMetric().Labels["database"])
-		log.Printf("\tCPU Unitilization: %.4f\n", resp.GetPoints()[0].GetValue().GetDoubleValue())
+		log.Printf("\tCPU Utilization: %.4f\n", resp.GetPoints()[0].GetValue().GetDoubleValue())
 	}
 
 	return nil
