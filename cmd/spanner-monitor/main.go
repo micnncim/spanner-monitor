@@ -2,41 +2,33 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/micnncim/spanner-monitor/pkg/metrics"
 )
 
+var (
+	projectID = flag.String("project-id", "", "The project id for GCP project.")
+)
+
 func main() {
-	projectID := os.Getenv("PROJECT_ID")
-	if projectID == "" {
+	flag.Parse()
+	if *projectID == "" {
 		fmt.Fprintln(os.Stderr, "project-id missing")
 		os.Exit(1)
 	}
 
 	ctx := context.Background()
 
-	client, err := metrics.NewClient(ctx, projectID)
+	client, err := metrics.NewClient(ctx, *projectID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create metrics client: %v\n", err)
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if err := client.ReadMetrics(ctx); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to read metrics: %v\n", err)
-			os.Exit(1)
-		}
-	})
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
+	if err := client.ReadMetrics(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to read metrics: %v\n", err)
 		os.Exit(1)
 	}

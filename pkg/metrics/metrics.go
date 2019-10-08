@@ -3,7 +3,6 @@ package metrics
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -37,10 +36,15 @@ func (c *Client) ReadMetrics(ctx context.Context) error {
 	now := time.Now()
 	startTime := now.UTC().Add(-time.Minute * 20)
 	endTime := now.UTC()
+	filter := `
+		metric.type = "spanner.googleapis.com/instance/cpu/utilization_by_priority" AND
+		metric.label.priority = "high"
+`
+
 	req := &monitoringpb.ListTimeSeriesRequest{
 		Name: fmt.Sprintf("projects/%s", c.projectID),
 		// TODO: Fix metrics type and enable to specify with argument.
-		Filter: `metric.type="spanner.googleapis.com/instance/cpu/utilization"`,
+		Filter: filter,
 		Interval: &monitoringpb.TimeInterval{
 			StartTime: &timestamp.Timestamp{
 				Seconds: startTime.Unix(),
@@ -62,8 +66,8 @@ func (c *Client) ReadMetrics(ctx context.Context) error {
 			return err
 		}
 
-		log.Printf("%#v\n", resp.GetMetric().Labels["database"])
-		log.Printf("\tCPU Utilization: %.4f\n", resp.GetPoints()[0].GetValue().GetDoubleValue())
+		fmt.Printf("%s (priority=%s)\n", resp.GetMetric().Labels["database"], resp.GetMetric().Labels["priority"])
+		fmt.Printf("\tCPU Utilization: %.4f\n", resp.GetPoints()[0].GetValue().GetDoubleValue())
 	}
 
 	return nil
