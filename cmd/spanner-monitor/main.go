@@ -26,12 +26,12 @@ func main() {
 
 	client, err := metrics.NewClient(ctx, *projectID)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to create metrics client: %v", err)
+		fmt.Fprintf(os.Stderr, "failed to create metrics client: %v\n", err)
 		os.Exit(1)
 	}
 
 	if err := client.ReadMetrics(ctx); err != nil {
-		fmt.Fprintln(os.Stderr, "failed to read metrics: %v", err)
+		fmt.Fprintf(os.Stderr, "failed to read metrics: %v\n", err)
 		os.Exit(1)
 	}
 }

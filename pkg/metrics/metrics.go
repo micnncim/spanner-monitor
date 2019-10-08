@@ -40,11 +40,11 @@ func (c *Client) ReadMetrics(ctx context.Context) error {
 
 	now := time.Now()
 	startTime := now.UTC().Add(-time.Minute * 20)
-	endTime := now.UTC().Add(-time.Minute * 20)
+	endTime := now.UTC()
 	req := &monitoringpb.ListTimeSeriesRequest{
 		Name: fmt.Sprintf("projects/%s", c.projectID),
 		// TODO: Fix metrics type and enable to specify with argument.
-		Filter: `metrics.type="compute.googleapis.com/instance/cpu/usage_time"`,
+		Filter: `metric.type="compute.googleapis.com/instance/cpu/utilization"`,
 		Interval: &monitoringpb.TimeInterval{
 			StartTime: &timestamp.Timestamp{
 				Seconds: startTime.Unix(),
@@ -68,7 +68,7 @@ func (c *Client) ReadMetrics(ctx context.Context) error {
 			return err
 		}
 		// TODO: Remove this.
-		pp.Println(resp)
+		pp.Println(resp.GetMetric())
 	}
 
 	return nil
