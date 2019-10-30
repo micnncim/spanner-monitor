@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	projectID = flag.String("project-id", "", "The project id for GCP project.")
+	projectID  = flag.String("project-id", "", "The project id for GCP project.")
+	instanceID = flag.String("instance-id", "", "The instance id for Cloud Spanner")
 )
 
 func main() {
@@ -22,13 +23,13 @@ func main() {
 
 	ctx := context.Background()
 
-	client, err := metrics.NewClient(ctx, *projectID)
+	client, err := metrics.NewClient(ctx)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create metrics client: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err := client.ReadMetrics(ctx); err != nil {
+	if err := client.ReadMetrics(ctx, *projectID, *instanceID); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to read metrics: %v\n", err)
 		os.Exit(1)
 	}
